@@ -47,7 +47,7 @@ resource "aws_subnet" "public_1" {
 # Create route table so IGW_1 can access internet 
 resource "aws_route_table" "art_public_1" {
   vpc_id = aws_vpc.vpc_1.id
-  route = {
+  route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw_1.id
   }
@@ -66,7 +66,7 @@ resource "aws_route_table_association" "rta_subnet_public" {
 # This should allow traffic in to ngnix 
 
 resource "aws_security_group" "sg_1" {
-  name   = sg_1
+  name   = "sg_1"
   vpc_id = aws_vpc.vpc_1.id
 
   ingress {
@@ -90,17 +90,13 @@ resource "aws_security_group" "sg_1" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-  tags = {
-    Name = "sg_1"
-  }
 }
 
 resource "aws_instance" "nginx1" {
   ami                    = "ami-0ca285d4c2cda3300"
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.public_1.id
-  vpc_security_group_ids = aws_security_group.sg_1.id
+  vpc_security_group_ids = ["aws_security_group.sg_1.id"]
   key_name               = "terraform"
   tags = {
     Name = "nginx1"

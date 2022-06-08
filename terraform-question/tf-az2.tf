@@ -1,17 +1,6 @@
-
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 4.16"
-    }
-  }
-
-  required_version = ">= 1.2.0"
-}
-
 provider "aws" {
   region = "us-east-2"
+  alias = "east2"
 }
 
 
@@ -47,7 +36,7 @@ resource "aws_subnet" "public_2" {
 # Create route table so IGW_2 can access internet 
 resource "aws_route_table" "art_public_2" {
   vpc_id = aws_vpc.vpc_2.id
-  route = {
+  route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw_2.id
   }
@@ -58,7 +47,7 @@ resource "aws_route_table" "art_public_2" {
 }
 
 # Associate RT with subnet 
-resource "aws_route_table_association" "rta_subnet_public" {
+resource "aws_route_table_association" "rta_subnet_public-2" {
   subnet_id      = aws_subnet.public_2.id
   route_table_id = aws_route_table.art_public_2.id
 }
@@ -66,7 +55,7 @@ resource "aws_route_table_association" "rta_subnet_public" {
 # This should allow traffic in to ngnix 
 
 resource "aws_security_group" "sg_2" {
-  name   = sg_2
+  name   = "sg_2"
   vpc_id = aws_vpc.vpc_2.id
 
   ingress {
@@ -100,13 +89,13 @@ resource "aws_instance" "nginx2" {
   ami                    = "ami-0ca285d4c2cda3300"
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.public_2.id
-  vpc_security_group_ids = aws_security_group.sg_2.id
+  vpc_security_group_ids = ["aws_security_group.sg_2.id"]
   key_name               = "terraform"
   tags = {
     Name = "nginx2"
   }
 }
 
-output "ec2_global_ips" {
+output "ec2_global_ips-2" {
   value = aws_instance.nginx2
 }
