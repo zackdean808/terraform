@@ -27,7 +27,7 @@ resource "aws_vpc" "vpc_1" {
 
 # Create Internet Gateway 
 resource "aws_internet_gateway" "igw_1" {
-  vpc_id = aws_vpc.vpc-1.id
+  vpc_id = aws_vpc.vpc_1.id
   tags = {
     Name = "IGW1"
   }
@@ -35,7 +35,7 @@ resource "aws_internet_gateway" "igw_1" {
 
 # Create subnet 
 resource "aws_subnet" "public_1" {
-  vpc_id                  = aws_vpc.vpc-1.id
+  vpc_id                  = aws_vpc.vpc_1.id
   cidr_block              = "10.0.1.0/24"
   availability_zone       = "us-west-2a"
   map_public_ip_on_launch = "false"
@@ -46,7 +46,7 @@ resource "aws_subnet" "public_1" {
 
 # Create route table so IGW_1 can access internet 
 resource "aws_route_table" "art_public_1" {
-  vpc_id = aws_vpc.vpc-1.id
+  vpc_id = aws_vpc.vpc_1.id
   route = {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw_1.id
@@ -105,4 +105,8 @@ resource "aws_instance" "nginx1" {
   tags = {
     Name = "nginx1"
   }
+}
+
+output "ec2_global_ips" {
+  value = aws_instance.nginx1.public_ip
 }
